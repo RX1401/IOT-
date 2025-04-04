@@ -1,0 +1,104 @@
+#include <Adafruit_MPU6050.h>
+#include <Adafruit_Sensor.h>
+#include <Wire.h>
+#include<SoftwareSerial.h>
+#include <math.h>
+#include <SPI.h>  
+#define buzzer 12
+
+Adafruit_MPU6050 mpu;
+SoftwareSerial BTserial(10,11);//RX|TX
+
+int status;
+int LED1 = 3; // Red
+int LED2 = 4; // Green
+int LED3 = 5; // White
+int buzzstate = 0;
+
+void setup(void) {
+	Serial.begin(9600);
+  BTserial.begin(9600);
+
+	// Try to initialize!
+	if (!mpu.begin()) {
+		Serial.println("Failed to find MPU6050 chip");
+		while (1) {
+		  delay(10);
+		}
+	}
+	Serial.println("MPU6050 Found!");
+
+	// set accelerometer range to +-8G
+	mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
+
+	// set gyro range to +- 500 deg/s
+	mpu.setGyroRange(MPU6050_RANGE_500_DEG);
+
+	// set filter bandwidth to 21 Hz
+	mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
+
+  pinMode(LED1, OUTPUT); // Red
+  pinMode(LED2, OUTPUT); // Green
+  pinMode(LED3, OUTPUT); // Yellow
+  
+  digitalWrite(LED1,LOW); // Red
+  digitalWrite(LED2,LOW); // Green
+  digitalWrite(LED3,LOW); // Yellow
+
+  pinMode(buzzer, OUTPUT); // Buzzer
+  digitalWrite(buzzer, 0);
+	delay(100);
+}
+
+void loop() {
+	/* Get new sensor events with the readings */
+	sensors_event_t a, g, temp;
+	mpu.getEvent(&a, &g, &temp);
+  
+
+	/* Print out the values */
+	Serial.print("Acceleration X: ");
+	Serial.print(a.acceleration.x);
+  Serial.print(", Y: ");
+	Serial.print(a.acceleration.y);
+  Serial.print(", Z: ");
+	Serial.print(a.acceleration.z);
+  Serial.println(" m/s^2");
+
+  BTserial.print("Acceleration X: ");
+	BTserial.print(a.acceleration.x);
+  BTserial.print(", Y: ");
+	BTserial.print(a.acceleration.y);
+  BTserial.print(", Z: ");
+	BTserial.print(a.acceleration.z);
+  BTserial.println(" m/s^2");
+
+	Serial.print("Rotation X: ");
+	Serial.print(g.gyro.x);
+  Serial.print(", Y: ");
+	Serial.print(g.gyro.y);
+  Serial.print(", Z: ");
+	Serial.print(g.gyro.z);
+  Serial.println(" rad/s");
+  
+	BTserial.print("Rotation X: ");
+	BTserial.print(g.gyro.x);
+  BTserial.print(", Y: ");
+	BTserial.print(g.gyro.y);
+  BTserial.print(", Z: ");
+	BTserial.print(g.gyro.z);
+  BTserial.print(" rad/s");
+
+	Serial.print("Temperature: ");
+	Serial.print(temp.temperature);
+	Serial.println("°C");
+
+  BTserial.print("Temperature: ");
+	BTserial.print(temp.temperature);
+  BTserial.print("°C");
+
+	Serial.println("");
+  BTserial.print("");
+  delay(20);
+	delay(500);
+}
